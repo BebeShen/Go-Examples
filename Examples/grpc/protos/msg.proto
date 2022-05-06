@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = ".;msg";
+
+/* option 不會改變聲明的整體含義，但可能會影響它在特定上下文中的處理方式 */
+
+package msg;
+
+
+/* 定義要回傳的 message 類型，我們想回傳的是一個位置情報 */
+service MessageService {
+    // Unary
+    rpc GetFeature(Point) returns (Feature) {}
+  }
+
+/* 座標訊息 */
+message Point {
+    int32 latitude = 1; // 把一個數字作為key使用，可以壓縮長度。要從 1 開始。
+    int32 longitude = 2;
+}
+
+/* 相關訊息 */
+message Feature {
+    string name = 1;
+    Point location = 2;
+}
