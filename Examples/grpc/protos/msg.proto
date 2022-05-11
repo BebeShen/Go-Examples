@@ -21,6 +21,6 @@ message Point {
 
 /* 相關訊息 */
 message Feature {
-    string name = 1;
+    repeated string name = 1;
     Point location = 2;
 }

@@ -1,4 +1,4 @@
-package pkg
+package main
 
 const  (
 	WelcomeText = "Hello, World to Golang"
