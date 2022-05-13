@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"time"
-	. "db/expo"
-	. "db/db"
+	
+    . "app/pkg"
+	. "app/expo"
+	. "app/db"
 )
 
 func main ()  {
@@ -35,12 +37,30 @@ func main ()  {
 	// user.Updated = time.Now()
 	// Update(DB, user.User_id, user)
 
-	fmt.Printf("Test expo token %s\n"+time.Now().Format("2022-05-12"))
+	fmt.Printf("Test expo token %s\n",time.Now().Format("YYYY-MM-DD"))
 	// userList := FindAll(DB)
 	// for _, u := range userList {
 	// 	fmt.Printf("user_id: %d, token: %s, device: %s, settings: %s, created: %s. updated: %s\n", u.User_id, u.Token, u.Device, u.Settings, u.Created, u.Updated)
 	// }
+	var tmList TokensWithMessage
+	tmList.Token = append(tmList.Token, "ExponentPushToken[6hv555HcNo7iNLhnPt4Y9a]")
+	tmList.Message = "Expo Push Test for golang (struct, slice)"
+	u1, err := FindOne(DB, uint32(8839))
+	fmt.Println("8839", u1, err)
+	if _, err := FindOne(DB, uint32(8841)) ; err == ErrorUserNotExist {
+		// insertUser := new(User)
+		insertUser := new(User)
+		insertUser.Init(8841, "ExponentPushToken[6hv555HcNo7iNLhnPt4Y9a]")
+		if status := Insert(DB, insertUser) ; status != "success" {
+			panic("Fail on INSERT USER")
+		}
+	}
 
-	SendPushNotificationToUser()
+
+	userList := FindAll(DB)
+	for _, u := range userList {
+		fmt.Printf("user_id: %d, token: %s, device: %s, settings: %s, created: %s. updated: %s\n", u.User_id, u.Token, u.Device, u.Settings, u.Created, u.Updated)
+	}
+	SendPushNotificationToUser(tmList)
 	DB.Close()
 }

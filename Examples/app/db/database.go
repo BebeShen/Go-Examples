@@ -4,11 +4,13 @@ import (
 	"database/sql"
     "fmt"
     "time"
+    "errors"
 
-    . "db/pkg"
+    . "app/pkg"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var ErrorUserNotExist = errors.New("Not Exist")
 var DB *sql.DB
 
 func Connect() (db *sql.DB, err error) {
@@ -49,16 +51,24 @@ func FindAll(db *sql.DB) []User {
     return userList
 }
 
-func FindOne(db *sql.DB, user_id int) (user User) {
+func FindOne(db *sql.DB, user_id uint32) (user *User, err error) {
+
     result := db.QueryRow("SELECT * FROM notification WHERE user_id=?", user_id)
-    // defer result.Close()
-    result.Scan(&user.User_id, &user.Token, &user.Device, &user.Settings, &user.Created, &user.Updated)
-    return user
+    fmt.Println("/db/FindOne [Scan]")
+    var u = new(User)
+    err = result.Scan(&u.User_id, &u.Token, &u.Device, &u.Settings, &u.Created, &u.Updated)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, ErrorUserNotExist
+        }
+    }
+    fmt.Println("/db/FindOne [Finish]")
+    return u, err
 }
 
-func Insert(db *sql.DB, user User) string {
+func Insert(db *sql.DB, user *User) string {
     // insert
-    stmt, err := db.Prepare("INSERT INTO notification(user_id, token, device, settings, created, updated) values(?,?,?,?,datetime('now'),datetime('now'))")
+    stmt, err := db.Prepare("INSERT INTO notification(user_id, token, device, settings, created, updated) values(?,?,?,?,?,?)")
     CheckErr(err)
     res, err := stmt.Exec(user.User_id, user.Token, user.Device, user.Settings, time.Now(), time.Now())
     CheckErr(err)
